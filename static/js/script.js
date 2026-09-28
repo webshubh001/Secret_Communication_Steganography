@@ -182,6 +182,11 @@ function setupDropZone(dropZoneId, inputId, onFilesChanged) {
         e.stopPropagation();
     }
 
+    // Allow clicking on drop zone to open file dialog
+    dropZone.addEventListener('click', () => {
+        input.click();
+    });
+
     // Highlight drop zone
     ['dragenter', 'dragover'].forEach(eventName => {
         dropZone.addEventListener(eventName, () => {
