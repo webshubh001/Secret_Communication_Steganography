@@ -1400,3 +1400,97 @@ tbody tr:hover { background-color: var(--bg-muted); }
     border-radius: var(--radius-md);
     padding: 1rem;
 }
+
+/* ─── Fixes for SVG Icon Sizes & Missing Classes ──────────────────── */
+
+.drop-icon {
+    width: 64px;
+    height: 64px;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+.drop-icon-sm {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 0.5rem;
+}
+
+.toggle-group {
+    display: flex;
+    background-color: var(--bg-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.25rem;
+    margin-bottom: 1.5rem;
+}
+.toggle-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.toggle-btn svg { width: 1.125rem; height: 1.125rem; }
+.toggle-btn.active {
+    background-color: var(--bg-white);
+    color: var(--text-dark);
+    box-shadow: var(--shadow-sm);
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -1.75rem;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-white);
+    border: 2px solid;
+    top: 5px;
+}
+.timeline-marker.success { border-color: var(--success); color: var(--success); }
+.timeline-marker.pending { border-color: var(--warning); color: var(--warning); }
+.timeline-marker svg { width: 14px; height: 14px; }
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+.timeline-header h3 { margin: 0; font-size: 1.05rem; color: var(--text-dark); }
+.timeline-time { font-size: 0.75rem; color: var(--text-light); }
+.timeline-body p { margin-bottom: 0.25rem; font-size: 0.85rem; }
+
+.log-icon {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background-color: var(--primary-light);
+    color: var(--primary);
+    flex-shrink: 0;
+}
+.log-icon svg { width: 20px; height: 20px; }
+.log-item { display: flex; gap: 1rem; align-items: flex-start; padding: 1rem 0; border-bottom: 1px solid var(--border); }
+.log-item:last-child { border-bottom: none; }
+.log-details { flex: 1; }
+.log-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+.log-title { font-weight: 600; font-size: 0.9rem; color: var(--text-dark); }
+
+.status-icon svg { width: 24px; height: 24px; }
+.auth-icon svg { width: 24px; height: 24px; }
+
