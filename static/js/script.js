@@ -63,11 +63,11 @@ function initNavbar() {
     if (navbar) {
         window.addEventListener('scroll', () => {
             if (window.scrollY > 20) {
-                navbar.style.backgroundColor = 'rgba(2, 6, 23, 0.95)';
-                navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.5)';
+                navbar.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+                navbar.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.05)';
             } else {
-                navbar.style.backgroundColor = 'rgba(2, 6, 23, 0.8)';
-                navbar.style.boxShadow = 'none';
+                navbar.style.backgroundColor = 'var(--bg-white)';
+                navbar.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
             }
         });
     }
