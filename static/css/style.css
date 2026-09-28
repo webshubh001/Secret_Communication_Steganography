@@ -1551,3 +1551,19 @@ tbody tr:hover { background-color: var(--bg-muted); }
 .verification-item { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
 .verification-item.pass svg { color: var(--success); width: 1.25rem; height: 1.25rem; flex-shrink: 0; }
 .verification-item.fail svg { color: var(--danger); width: 1.25rem; height: 1.25rem; flex-shrink: 0; }
+
+/* ─── Face Auth & Profile SVG Fixes ──────────────────────────── */
+.auth-ring { display: inline-flex; align-items: center; justify-content: center; }
+.auth-ring svg { width: 48px; height: 48px; color: var(--primary); }
+.face-auth-badge svg { width: 1.25rem; height: 1.25rem; }
+.face-tip svg { width: 24px; height: 24px; color: var(--primary); flex-shrink: 0; }
+.face-placeholder svg { width: 64px; height: 64px; color: var(--text-muted); margin-bottom: 0.5rem; }
+.threshold-info svg { width: 1.25rem; height: 1.25rem; color: var(--text-muted); flex-shrink: 0; }
+.alert-banner svg { width: 1.5rem; height: 1.5rem; flex-shrink: 0; }
+
+.face-auth-header { text-align: center; margin-bottom: 1.5rem; }
+.face-preview {
+    background-color: var(--bg-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
