@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Internal Server Error{% endblock %}
+
+{% block content %}
+<div class="page-container page-narrow">
+    <div class="error-container">
+        <div class="error-icon" style="color: #ef4444;">
+            <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <h1 class="error-code">500</h1>
+        <h2 class="error-title">Internal Server Error</h2>
+        <p class="error-msg">Something went wrong on our end. Our team has been notified. Please try again later.</p>
+        <div class="error-actions">
+            <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-primary">Return to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

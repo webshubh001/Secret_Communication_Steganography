@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+{% block title %}Face Authentication{% endblock %}
+
+{% block content %}
+<div class="page-container page-narrow">
+    <div class="page-header centered">
+        <h1 class="page-title">Face Authentication</h1>
+        <p class="page-subtitle">Upload or capture a photo of your face to verify your identity before decoding.</p>
+    </div>
+
+    {% if not has_face %}
+    <div class="alert-banner alert-warning">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke="currentColor" stroke-width="2"/></svg>
+        <div>
+            <strong>No Face Profile Found</strong> — Please register your face before attempting authentication.
+            <a href="{{ url_for('face.register_face') }}">Register now →</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="glass-card">
+        <!-- Security badge -->
+        <div class="face-auth-header">
+            <div class="auth-ring">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="8" r="5" stroke="url(#faceGrad)" stroke-width="2"/>
+                    <path d="M3 21a9 9 0 0118 0" stroke="url(#faceGrad)" stroke-width="2" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="faceGrad" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <div>
+                <h2>Biometric Verification</h2>
+                <p>128-D face embedding comparison via dlib</p>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('face.authenticate') }}"
+              enctype="multipart/form-data" id="faceAuthForm" novalidate>
+            {% if request.args.get('next') %}
+            <input type="hidden" name="next" value="{{ request.args.get('next') }}">
+            {% endif %}
+
+            <!-- ── Tab switcher ── -->
+            <div class="capture-tabs">
+                <button type="button" class="capture-tab active" id="tabUpload" onclick="switchTab('upload')">
+                    <svg viewBox="0 0 24 24" fill="none" width="16" height="16"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Upload Photo
+                </button>
+                <button type="button" class="capture-tab" id="tabCamera" onclick="switchTab('camera')">
+                    <svg viewBox="0 0 24 24" fill="none" width="16" height="16"><path d="M23 7l-7 5 7 5V7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2" stroke="currentColor" stroke-width="2"/></svg>
+                    Use Camera
+                </button>
+            </div>
+
+            <!-- SINGLE shared file input used by both modes -->
+            <input type="file" name="face_image" id="authFaceImage"
+                   accept=".png,.jpg,.jpeg" class="file-input" style="display:none;">
+
+            <!-- ── Upload panel ── -->
+            <div class="form-group" id="panelUpload">
+                <label class="form-label">Authentication Photo</label>
+                <div class="drop-zone face-drop-zone" id="faceAuthDropZone" tabindex="0" role="button">
+                    <div class="drop-zone-inner">
+                        <div class="face-placeholder" id="authFacePlaceholder">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="2"/>
+                                <path d="M3 21a9 9 0 0118 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <img id="authFacePreview" class="face-preview hidden" alt="Authentication face preview">
+                        <p class="drop-title" id="authFaceDropTitle">Drop your photo here</p>
+                        <p class="drop-subtitle">or click to browse</p>
+                        <span class="drop-hint">PNG or JPG &bull; Clear, well-lit photo</span>
+                    </div>
+                </div>
+                <p class="upload-error hidden" id="uploadError" style="color:#f87171;font-size:.85rem;margin-top:8px;">Please select a photo before submitting.</p>
+            </div>
+
+            <!-- ── Camera panel ── -->
+            <div class="form-group hidden" id="panelCamera">
+                <label class="form-label">Live Camera</label>
+                <div class="camera-container">
+                    <div class="camera-feed-wrap" id="cameraFeedWrap">
+                        <video id="cameraVideo" autoplay playsinline muted></video>
+                        <div class="camera-overlay-ring"></div>
+                        <div class="camera-status" id="cameraStatus">
+                            <svg viewBox="0 0 24 24" fill="none" width="14" height="14"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            Starting camera…
+                        </div>
+                    </div>
+                    <canvas id="cameraCanvas" style="display:none;"></canvas>
+                    <img id="cameraSnapshot" class="hidden camera-snapshot" alt="Captured face">
+                    <div class="camera-controls">
+                        <button type="button" class="btn btn-secondary" id="btnCapture" disabled onclick="capturePhoto()">
+                            <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
+                            Capture Photo
+                        </button>
+                        <button type="button" class="btn btn-ghost hidden" id="btnRetake" onclick="retakePhoto()">
+                            <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><polyline points="1 4 1 10 7 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Retake
+                        </button>
+                    </div>
+                    <p class="camera-hint" id="cameraHint">Position your face in the circle and click Capture.</p>
+                </div>
+            </div>
+
+            <!-- Distance threshold info -->
+            <div class="threshold-info">
+                <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <p>The system compares your face to the stored embedding. A Euclidean distance below the threshold means authentication success.</p>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full btn-lg" id="authFaceBtn">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="currentColor" stroke-width="2"/></svg>
+                <span class="btn-text">Verify My Identity</span>
+                <span class="btn-loader hidden">
+                    <svg class="spinner" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="60" stroke-dashoffset="15"/></svg>
+                    Verifying…
+                </span>
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.capture-tabs {
+    display: flex; gap: 8px; margin-bottom: 20px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px; padding: 6px;
+}
+.capture-tab {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    gap: 8px; padding: 10px 16px; border: none; border-radius: 8px;
+    background: transparent; color: #9ca3af;
+    font-size: 0.9rem; font-weight: 500; cursor: pointer;
+    transition: all 0.2s ease;
+}
+.capture-tab:hover { color: #fff; }
+.capture-tab.active {
+    background: #8b5cf6; color: #fff;
+    box-shadow: 0 2px 12px rgba(139,92,246,0.4);
+}
+.camera-container {
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+}
+.camera-feed-wrap {
+    position: relative; width: 100%; max-width: 420px;
+    aspect-ratio: 4/3; border-radius: 16px; overflow: hidden;
+    background: #0a0a0f;
+    border: 2px solid rgba(139,92,246,0.35);
+    box-shadow: 0 0 30px rgba(139,92,246,0.12);
+}
+#cameraVideo {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transform: scaleX(-1);
+}
+.camera-overlay-ring {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 58%; aspect-ratio: 1; border-radius: 50%;
+    border: 2px dashed rgba(139,92,246,0.65);
+    pointer-events: none;
+    animation: ring-pulse 2.5s ease-in-out infinite;
+}
+@keyframes ring-pulse {
+    0%,100% { opacity:.5; transform:translate(-50%,-50%) scale(1); }
+    50%      { opacity:1;  transform:translate(-50%,-50%) scale(1.04); }
+}
+.camera-status {
+    position: absolute; bottom: 10px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(0,0,0,0.65); color: #e5e7eb;
+    font-size: 0.78rem; padding: 5px 14px; border-radius: 20px;
+    backdrop-filter: blur(6px); white-space: nowrap;
+}
+.camera-snapshot {
+    width: 100%; max-width: 420px; border-radius: 16px;
+    border: 2px solid rgba(139,92,246,0.5);
+    box-shadow: 0 0 30px rgba(139,92,246,0.2);
+}
+.camera-controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.camera-hint { font-size: 0.82rem; color: #9ca3af; text-align: center; margin: 0; }
+.btn-ghost {
+    background: transparent; border: 1px solid rgba(255,255,255,0.15); color: #d1d5db;
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.06); }
+#btnCapture:not([disabled]) { animation: cap-glow 2s ease-in-out infinite; }
+@keyframes cap-glow {
+    0%,100% { box-shadow: 0 0 0 0   rgba(139,92,246,.4); }
+    50%      { box-shadow: 0 0 0 8px rgba(139,92,246,0);  }
+}
+</style>
+
+<script>
+let camStream  = null;
+let currentTab = 'upload';
+const fileInput = document.getElementById('authFaceImage');
+
+/* ── Wire drop-zone to shared input ───────────────────── */
+const dropZone = document.getElementById('faceAuthDropZone');
+if (dropZone) {
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') fileInput.click(); });
+    dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault(); dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            const dt = new DataTransfer();
+            dt.items.add(e.dataTransfer.files[0]);
+            fileInput.files = dt.files;
+            showPreview(e.dataTransfer.files[0]);
+        }
+    });
+}
+
+fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) showPreview(fileInput.files[0]);
+});
+
+function showPreview(file) {
+    const preview     = document.getElementById('authFacePreview');
+    const placeholder = document.getElementById('authFacePlaceholder');
+    const title       = document.getElementById('authFaceDropTitle');
+    const reader = new FileReader();
+    reader.onload = ev => {
+        preview.src = ev.target.result;
+        preview.classList.remove('hidden');
+        if (placeholder) placeholder.style.display = 'none';
+        if (title)       title.textContent = file.name;
+    };
+    reader.readAsDataURL(file);
+}
+
+/* ── Tab switch ───────────────────────────────────────── */
+function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById('tabUpload').classList.toggle('active', tab==='upload');
+    document.getElementById('tabCamera').classList.toggle('active', tab==='camera');
+    document.getElementById('panelUpload').classList.toggle('hidden', tab!=='upload');
+    document.getElementById('panelCamera').classList.toggle('hidden', tab!=='camera');
+
+    if (tab === 'camera') {
+        fileInput.value = '';
+        startCamera();
+    } else {
+        stopCamera();
+    }
+}
+
+/* ── Camera ───────────────────────────────────────────── */
+async function startCamera() {
+    const video  = document.getElementById('cameraVideo');
+    const status = document.getElementById('cameraStatus');
+    const btnCap = document.getElementById('btnCapture');
+
+    document.getElementById('cameraFeedWrap').classList.remove('hidden');
+    document.getElementById('cameraSnapshot').classList.add('hidden');
+    document.getElementById('btnRetake').classList.add('hidden');
+    btnCap.classList.remove('hidden');
+    btnCap.disabled = true;
+
+    status.innerHTML = '<svg viewBox="0 0 24 24" fill="none" width="14" height="14"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg> Requesting permission…';
+
+    try {
+        camStream = await navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
+            audio: false
+        });
+        video.srcObject = camStream;
+        await video.play();
+        status.innerHTML = '<span style="color:#22c55e">●</span> Camera ready';
+        btnCap.disabled = false;
+        document.getElementById('cameraHint').textContent = 'Look straight at the camera and click Capture.';
+    } catch (err) {
+        let msg = 'Camera error.';
+        if      (err.name==='NotAllowedError')  msg = 'Permission denied — allow camera access in your browser.';
+        else if (err.name==='NotFoundError')    msg = 'No camera found on this device.';
+        else if (err.name==='NotReadableError') msg = 'Camera is in use by another app.';
+        status.innerHTML = '<span style="color:#ef4444">✕</span> ' + msg;
+        document.getElementById('cameraHint').textContent = msg + ' Use the Upload tab instead.';
+    }
+}
+
+function stopCamera() {
+    if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+}
+
+/* ── Capture ──────────────────────────────────────────── */
+function capturePhoto() {
+    const video    = document.getElementById('cameraVideo');
+    const canvas   = document.getElementById('cameraCanvas');
+    const snapshot = document.getElementById('cameraSnapshot');
+    const feedWrap = document.getElementById('cameraFeedWrap');
+    const btnCap   = document.getElementById('btnCapture');
+    const btnRet   = document.getElementById('btnRetake');
+    const hint     = document.getElementById('cameraHint');
+
+    canvas.width  = video.videoWidth  || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    ctx.save();
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.restore();
+
+    snapshot.src = canvas.toDataURL('image/jpeg', 0.95);
+    feedWrap.classList.add('hidden');
+    snapshot.classList.remove('hidden');
+    snapshot.style.opacity = '0';
+    requestAnimationFrame(() => {
+        snapshot.style.transition = 'opacity .3s';
+        snapshot.style.opacity    = '1';
+    });
+
+    btnCap.classList.add('hidden');
+    btnRet.classList.remove('hidden');
+    hint.textContent = '✅ Photo captured! Click Verify My Identity, or Retake to redo.';
+
+    /* inject into the shared input Flask reads */
+    canvas.toBlob(blob => {
+        const file = new File([blob], 'auth_capture.jpg', { type: 'image/jpeg' });
+        const dt   = new DataTransfer();
+        dt.items.add(file);
+        fileInput.files = dt.files;
+    }, 'image/jpeg', 0.95);
+
+    stopCamera();
+}
+
+/* ── Retake ───────────────────────────────────────────── */
+function retakePhoto() {
+    fileInput.value = '';
+    document.getElementById('cameraHint').textContent = 'Look straight at the camera and click Capture.';
+    document.getElementById('cameraHint').style.color = '';
+    startCamera();
+}
+
+/* ── Submit validation ────────────────────────────────── */
+document.getElementById('faceAuthForm').addEventListener('submit', function(e) {
+    if (!fileInput.files || !fileInput.files.length) {
+        e.preventDefault();
+        if (currentTab === 'upload') {
+            document.getElementById('uploadError').classList.remove('hidden');
+        } else {
+            const hint = document.getElementById('cameraHint');
+            hint.textContent = '⚠️ Please capture a photo first.';
+            hint.style.color = '#f87171';
+        }
+    }
+});
+
+window.addEventListener('beforeunload', stopCamera);
+</script>
+{% endblock %}

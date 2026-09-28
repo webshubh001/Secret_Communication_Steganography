@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Profile Settings{% endblock %}
+
+{% block content %}
+<div class="page-container page-narrow">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Profile Settings</h1>
+            <p class="page-subtitle">Manage your account security and biometric profile.</p>
+        </div>
+    </div>
+
+    <div class="profile-grid">
+        <!-- Left: Basic info & Face Profile -->
+        <div class="profile-main">
+            <!-- Account Info -->
+            <div class="glass-card mb-2">
+                <div class="card-header">
+                    <h2>Account Information</h2>
+                </div>
+                <form method="POST" action="{{ url_for('dashboard.profile') }}" class="mt-1">
+                    <input type="hidden" name="action" value="update_email">
+                    
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-input" value="{{ current_user.username }}" disabled>
+                        <span class="form-hint">Usernames cannot be changed.</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-input" value="{{ current_user.email }}" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Update Email</button>
+                </form>
+            </div>
+            
+            <!-- Biometric Profile -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2>Biometric Authentication</h2>
+                </div>
+                
+                <div class="biometric-status {{ 'status-active' if current_user.has_face_profile else 'status-inactive' }}">
+                    <div class="status-icon">
+                        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M6 20v-2a4 4 0 014-4h4a4 4 0 014 4v2" stroke="currentColor" stroke-width="2"/></svg>
+                    </div>
+                    <div class="status-info">
+                        <h3>Face Profile is {% if current_user.has_face_profile %}Active{% else %}Inactive{% endif %}</h3>
+                        <p>
+                            {% if current_user.has_face_profile %}
+                            Registered on {{ current_user.face_profile.created_at.strftime('%d %b %Y') }}.
+                            {% else %}
+                            You need to register a face profile to decode messages.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="biometric-actions mt-2">
+                    {% if current_user.has_face_profile %}
+                    <a href="{{ url_for('face.register_face') }}" class="btn btn-outline">Update Face Photo</a>
+                    <form method="POST" action="{{ url_for('face.delete_face') }}" class="inline-form" onsubmit="return confirm('Are you sure you want to delete your face profile? You will not be able to decode messages until you register again.');">
+                        <button type="submit" class="btn btn-outline btn-danger">Delete Profile</button>
+                    </form>
+                    {% else %}
+                    <a href="{{ url_for('face.register_face') }}" class="btn btn-primary">Register Face Profile</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right: Password & Security -->
+        <div class="profile-sidebar">
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2>Change Password</h2>
+                </div>
+                <form method="POST" action="{{ url_for('dashboard.profile') }}" class="mt-1">
+                    <input type="hidden" name="action" value="change_password">
+                    
+                    <div class="form-group">
+                        <label for="current_password" class="form-label">Current Password</label>
+                        <input type="password" id="current_password" name="current_password" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new_password" class="form-label">New Password</label>
+                        <input type="password" id="new_password" name="new_password" class="form-input" required minlength="8">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm_password" class="form-label">Confirm New Password</label>
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-input" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-outline btn-full">Update Password</button>
+                </form>
+            </div>
+            
+            <div class="security-stats mt-2">
+                <div class="stat-mini">
+                    <span class="stat-mini-label">Account Created</span>
+                    <span class="stat-mini-val">{{ current_user.created_at.strftime('%d %b %Y') }}</span>
+                </div>
+                <div class="stat-mini">
+                    <span class="stat-mini-label">Last Login</span>
+                    <span class="stat-mini-val">
+                        {% if current_user.last_login %}
+                        {{ current_user.last_login.strftime('%d %b %Y, %H:%M') }}
+                        {% else %}
+                        First login
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

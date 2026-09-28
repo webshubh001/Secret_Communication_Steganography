@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="SecretVault — Multi-image steganography with AES-256 encryption and face recognition authentication for secure covert communication.">
+    <title>{% block title %}SecretVault{% endblock %} | Secret Communication System</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- ─── Navigation ─────────────────────────────────────────────────────────────── -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="nav-brand">
+                <svg class="brand-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1Z"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span>Secret<strong>Vault</strong></span>
+            </a>
+
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+
+            <div class="nav-links" id="navLinks">
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard.dashboard') }}"
+                    class="nav-link {% if request.endpoint == 'dashboard.dashboard' %}active{% endif %}">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" />
+                        <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" />
+                        <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" />
+                        <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('encode.encode') }}"
+                    class="nav-link {% if request.endpoint == 'encode.encode' %}active{% endif %}">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Encode
+                </a>
+                <a href="{{ url_for('decode.decode') }}"
+                    class="nav-link {% if request.endpoint == 'decode.decode' %}active{% endif %}">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M21 15V19a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    Decode
+                </a>
+                <a href="{{ url_for('dashboard.history') }}"
+                    class="nav-link {% if request.endpoint == 'dashboard.history' %}active{% endif %}">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M12 8V12L15 15M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    History
+                </a>
+                <div class="nav-user-menu">
+                    <button class="nav-user-btn" id="userMenuBtn">
+                        <div class="user-avatar">{{ current_user.username[0].upper() }}</div>
+                        <span>{{ current_user.username }}</span>
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="{{ url_for('dashboard.profile') }}" class="dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"
+                                    stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            Profile
+                        </a>
+                        {% if not current_user.has_face_profile %}
+                        <a href="{{ url_for('face.register_face') }}" class="dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" />
+                                <path d="M6 20v-2a4 4 0 014-4h4a4 4 0 014 4v2" stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            Register Face
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('face.authenticate') }}" class="dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path
+                                    d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                                    stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            Face Auth
+                        </a>
+                        {% endif %}
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ url_for('auth.logout') }}" class="dropdown-item danger">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                            Sign Out
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" class="nav-link">Sign In</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">Get Started</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- ─── Flash Messages ─────────────────────────────────────────────────────────── -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container" id="flashContainer">
+        {% for category, message in messages %}
+        <div class="flash flash-{{ category }}" role="alert">
+            <svg viewBox="0 0 24 24" fill="none" class="flash-icon">
+                {% if category == 'success' %}
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" />
+                {% elif category == 'danger' %}
+                <path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor"
+                    stroke-width="2" />
+                {% elif category == 'warning' %}
+                <path
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    stroke="currentColor" stroke-width="2" />
+                {% else %}
+                <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor"
+                    stroke-width="2" />
+                {% endif %}
+            </svg>
+            <span>{{ message }}</span>
+            <button class="flash-close" onclick="this.parentElement.remove()" aria-label="Dismiss">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- ─── Main Content ───────────────────────────────────────────────────────────── -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ─── Footer ────────────────────────────────────────────────────────────────── -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <svg viewBox="0 0 24 24" fill="none" class="footer-icon">
+                    <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1Z"
+                        stroke="currentColor" stroke-width="2" />
+                </svg>
+                <span>SecretVault</span>
+            </div>
+            <p class="footer-text">
+                6-Layer Security Pipeline &mdash; AES-256 &bull; LSB Steganography &bull; Face Recognition
+            </p>
+            <p class="footer-copy">&copy; 2026 MCA Final Year Workshop Project. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- ─── Scripts ───────────────────────────────────────────────────────────────── -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+
+</html>

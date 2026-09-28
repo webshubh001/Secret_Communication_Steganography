@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Create Account{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-bg">
+        <div class="hero-glow glow-1"></div>
+        <div class="hero-glow glow-2"></div>
+    </div>
+    <div class="auth-card auth-card-wide">
+        <div class="auth-header">
+            <svg class="auth-logo" viewBox="0 0 24 24" fill="none">
+                <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1Z" stroke="url(#regGrad)" stroke-width="2"/>
+                <path d="M9 12l2 2 4-4" stroke="url(#regGrad2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <defs>
+                    <linearGradient id="regGrad" x1="3" y1="1" x2="21" y2="23" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/>
+                    </linearGradient>
+                    <linearGradient id="regGrad2" x1="9" y1="10" x2="15" y2="14" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#22d3ee"/><stop offset="1" stop-color="#6366f1"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <h1>Create Your Vault</h1>
+            <p>Join SecretVault and start communicating securely</p>
+        </div>
+
+        <form class="auth-form" method="POST" action="{{ url_for('auth.register') }}" id="registerForm">
+
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <div class="input-wrapper">
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <input type="text" id="username" name="username" class="form-input"
+                           placeholder="Choose a username" required minlength="3" maxlength="80"
+                           value="{{ username or '' }}" autocomplete="username">
+                </div>
+                <span class="form-hint">3–80 characters, letters and numbers</span>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <div class="input-wrapper">
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="2"/><polyline points="22,6 12,13 2,6" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <input type="email" id="email" name="email" class="form-input"
+                           placeholder="Enter your email" required
+                           value="{{ email or '' }}" autocomplete="email">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-wrapper">
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="2"/>
+                        <path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <input type="password" id="password" name="password" class="form-input"
+                           placeholder="Create a strong password" required minlength="8"
+                           autocomplete="new-password" id="regPassword">
+                    <button type="button" class="input-toggle" data-target="password" aria-label="Toggle password visibility">
+                        <svg viewBox="0 0 24 24" fill="none" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+                    </button>
+                </div>
+                <!-- Password strength meter -->
+                <div class="password-strength" id="strengthMeter">
+                    <div class="strength-bar">
+                        <div class="strength-fill" id="strengthFill"></div>
+                    </div>
+                    <span class="strength-label" id="strengthLabel"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password" class="form-label">Confirm Password</label>
+                <div class="input-wrapper">
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-input"
+                           placeholder="Repeat your password" required autocomplete="new-password">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full btn-lg" id="registerBtn">
+                <span class="btn-text">Create Account</span>
+                <span class="btn-loader hidden">
+                    <svg class="spinner" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="60" stroke-dashoffset="15"/></svg>
+                </span>
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

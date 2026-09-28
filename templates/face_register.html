@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+{% block title %}Register Face{% endblock %}
+
+{% block content %}
+<div class="page-container page-narrow">
+    <div class="page-header centered">
+        <h1 class="page-title">Register Your Face</h1>
+        <p class="page-subtitle">Upload a clear photo of your face. Only the 128-dimensional embedding is stored — never the raw image.</p>
+    </div>
+
+    <div class="glass-card">
+        <div class="face-info-grid">
+            <div class="face-tip">
+                <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="2"/><path d="M3 21a9 9 0 0118 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <div><strong>Good lighting</strong><p>Ensure your face is evenly lit with no harsh shadows.</p></div>
+            </div>
+            <div class="face-tip">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+                <div><strong>Single face only</strong><p>Only one person should appear in the registration photo.</p></div>
+            </div>
+            <div class="face-tip">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0 0h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <div><strong>High resolution</strong><p>Use an image of at least 200×200 pixels for best results.</p></div>
+            </div>
+            <div class="face-tip">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
+                <div><strong>Privacy first</strong><p>Your raw image is processed in memory and never saved to disk.</p></div>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('face.register_face') }}"
+              enctype="multipart/form-data" id="faceRegisterForm" novalidate>
+
+            <!-- ── Tab switcher ── -->
+            <div class="capture-tabs">
+                <button type="button" class="capture-tab active" id="tabUpload" onclick="switchTab('upload')">
+                    <svg viewBox="0 0 24 24" fill="none" width="16" height="16"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Upload Photo
+                </button>
+                <button type="button" class="capture-tab" id="tabCamera" onclick="switchTab('camera')">
+                    <svg viewBox="0 0 24 24" fill="none" width="16" height="16"><path d="M23 7l-7 5 7 5V7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2" stroke="currentColor" stroke-width="2"/></svg>
+                    Use Camera
+                </button>
+            </div>
+
+            <!-- ── SINGLE shared file input (used by both modes) ── -->
+            <input type="file" name="face_image" id="faceImage"
+                   accept=".png,.jpg,.jpeg" class="file-input" style="display:none;">
+
+            <!-- ── Upload panel ── -->
+            <div class="form-group" id="panelUpload">
+                <label class="form-label">Face Photo</label>
+                <div class="drop-zone face-drop-zone" id="faceDropZone" tabindex="0" role="button">
+                    <div class="drop-zone-inner" id="faceDropInner">
+                        <div class="face-placeholder" id="facePlaceholder">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="2"/>
+                                <path d="M3 21a9 9 0 0118 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <img id="facePreview" class="face-preview hidden" alt="Face preview">
+                        <p class="drop-title" id="faceDropTitle">Drop your face photo here</p>
+                        <p class="drop-subtitle">or click to browse</p>
+                        <span class="drop-hint">PNG or JPG &bull; Max 16 MB</span>
+                    </div>
+                </div>
+                <p class="upload-error hidden" id="uploadError" style="color:#f87171;font-size:.85rem;margin-top:8px;">Please select a photo before submitting.</p>
+            </div>
+
+            <!-- ── Camera panel ── -->
+            <div class="form-group hidden" id="panelCamera">
+                <label class="form-label">Live Camera</label>
+                <div class="camera-container">
+                    <div class="camera-feed-wrap" id="cameraFeedWrap">
+                        <video id="cameraVideo" autoplay playsinline muted></video>
+                        <div class="camera-overlay-ring"></div>
+                        <div class="camera-status" id="cameraStatus">
+                            <svg viewBox="0 0 24 24" fill="none" width="14" height="14"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            Starting camera…
+                        </div>
+                    </div>
+                    <canvas id="cameraCanvas" style="display:none;"></canvas>
+                    <img id="cameraSnapshot" class="hidden camera-snapshot" alt="Captured face">
+                    <div class="camera-controls">
+                        <button type="button" class="btn btn-secondary" id="btnCapture" disabled onclick="capturePhoto()">
+                            <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
+                            Capture Photo
+                        </button>
+                        <button type="button" class="btn btn-ghost hidden" id="btnRetake" onclick="retakePhoto()">
+                            <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><polyline points="1 4 1 10 7 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Retake
+                        </button>
+                    </div>
+                    <p class="camera-hint" id="cameraHint">Position your face in the circle and click Capture.</p>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full btn-lg" id="registerFaceBtn">
+                <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M6 20v-2a4 4 0 014-4h4a4 4 0 014 4v2" stroke="currentColor" stroke-width="2"/></svg>
+                <span class="btn-text">Register Face</span>
+                <span class="btn-loader hidden">
+                    <svg class="spinner" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="60" stroke-dashoffset="15"/></svg>
+                    Processing…
+                </span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+.capture-tabs {
+    display: flex; gap: 8px; margin-bottom: 20px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px; padding: 6px;
+}
+.capture-tab {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    gap: 8px; padding: 10px 16px; border: none; border-radius: 8px;
+    background: transparent; color: #9ca3af;
+    font-size: 0.9rem; font-weight: 500; cursor: pointer;
+    transition: all 0.2s ease;
+}
+.capture-tab:hover { color: #fff; }
+.capture-tab.active {
+    background: #8b5cf6; color: #fff;
+    box-shadow: 0 2px 12px rgba(139,92,246,0.4);
+}
+.camera-container {
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+}
+.camera-feed-wrap {
+    position: relative; width: 100%; max-width: 420px;
+    aspect-ratio: 4/3; border-radius: 16px; overflow: hidden;
+    background: #0a0a0f;
+    border: 2px solid rgba(139,92,246,0.35);
+    box-shadow: 0 0 30px rgba(139,92,246,0.12);
+}
+#cameraVideo {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transform: scaleX(-1);
+}
+.camera-overlay-ring {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 58%; aspect-ratio: 1; border-radius: 50%;
+    border: 2px dashed rgba(139,92,246,0.65);
+    pointer-events: none;
+    animation: ring-pulse 2.5s ease-in-out infinite;
+}
+@keyframes ring-pulse {
+    0%,100% { opacity:.5; transform:translate(-50%,-50%) scale(1); }
+    50%      { opacity:1;  transform:translate(-50%,-50%) scale(1.04); }
+}
+.camera-status {
+    position: absolute; bottom: 10px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(0,0,0,0.65); color: #e5e7eb;
+    font-size: 0.78rem; padding: 5px 14px; border-radius: 20px;
+    backdrop-filter: blur(6px); white-space: nowrap;
+}
+.camera-snapshot {
+    width: 100%; max-width: 420px; border-radius: 16px;
+    border: 2px solid rgba(139,92,246,0.5);
+    box-shadow: 0 0 30px rgba(139,92,246,0.2);
+}
+.camera-controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.camera-hint { font-size: 0.82rem; color: #9ca3af; text-align: center; margin: 0; }
+.btn-ghost {
+    background: transparent; border: 1px solid rgba(255,255,255,0.15); color: #d1d5db;
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.06); }
+#btnCapture:not([disabled]) { animation: cap-glow 2s ease-in-out infinite; }
+@keyframes cap-glow {
+    0%,100% { box-shadow: 0 0 0 0   rgba(139,92,246,.4); }
+    50%      { box-shadow: 0 0 0 8px rgba(139,92,246,0);  }
+}
+</style>
+
+<script>
+let camStream  = null;
+let currentTab = 'upload';
+let photoReady = false;   /* true once camera has captured */
+
+/* ── Wire up drop-zone to the shared file input ───────────── */
+const dropZone  = document.getElementById('faceDropZone');
+const fileInput = document.getElementById('faceImage');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); });
+
+dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+    e.preventDefault(); dropZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) {
+        const dt = new DataTransfer();
+        dt.items.add(e.dataTransfer.files[0]);
+        fileInput.files = dt.files;
+        showUploadPreview(e.dataTransfer.files[0]);
+    }
+});
+
+fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) showUploadPreview(fileInput.files[0]);
+});
+
+function showUploadPreview(file) {
+    const preview     = document.getElementById('facePreview');
+    const placeholder = document.getElementById('facePlaceholder');
+    const title       = document.getElementById('faceDropTitle');
+    const reader      = new FileReader();
+    reader.onload = ev => {
+        preview.src = ev.target.result;
+        preview.classList.remove('hidden');
+        placeholder.style.display = 'none';
+        title.textContent = file.name;
+    };
+    reader.readAsDataURL(file);
+}
+
+/* ── Tab switch ───────────────────────────────────────────── */
+function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById('tabUpload').classList.toggle('active', tab === 'upload');
+    document.getElementById('tabCamera').classList.toggle('active', tab === 'camera');
+    document.getElementById('panelUpload').classList.toggle('hidden', tab !== 'upload');
+    document.getElementById('panelCamera').classList.toggle('hidden', tab !== 'camera');
+
+    if (tab === 'camera') {
+        /* clear any upload file so only camera capture is sent */
+        fileInput.value = '';
+        photoReady = false;
+        startCamera();
+    } else {
+        stopCamera();
+        photoReady = false;
+    }
+}
+
+/* ── Camera ───────────────────────────────────────────────── */
+async function startCamera() {
+    const video  = document.getElementById('cameraVideo');
+    const status = document.getElementById('cameraStatus');
+    const btnCap = document.getElementById('btnCapture');
+
+    document.getElementById('cameraFeedWrap').classList.remove('hidden');
+    document.getElementById('cameraSnapshot').classList.add('hidden');
+    document.getElementById('btnRetake').classList.add('hidden');
+    btnCap.classList.remove('hidden');
+    btnCap.disabled = true;
+
+    status.innerHTML = '<svg viewBox="0 0 24 24" fill="none" width="14" height="14"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg> Requesting permission…';
+
+    try {
+        camStream = await navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
+            audio: false
+        });
+        video.srcObject = camStream;
+        await video.play();
+        status.innerHTML = '<span style="color:#22c55e">●</span> Camera ready';
+        btnCap.disabled = false;
+        document.getElementById('cameraHint').textContent = 'Position your face in the circle and click Capture.';
+    } catch (err) {
+        let msg = 'Camera error.';
+        if      (err.name === 'NotAllowedError')  msg = 'Permission denied — allow camera in your browser settings.';
+        else if (err.name === 'NotFoundError')    msg = 'No camera found on this device.';
+        else if (err.name === 'NotReadableError') msg = 'Camera is in use by another app.';
+        status.innerHTML = '<span style="color:#ef4444">✕</span> ' + msg;
+        document.getElementById('cameraHint').textContent = msg + ' Use the Upload tab instead.';
+    }
+}
+
+function stopCamera() {
+    if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+}
+
+/* ── Capture ──────────────────────────────────────────────── */
+function capturePhoto() {
+    const video    = document.getElementById('cameraVideo');
+    const canvas   = document.getElementById('cameraCanvas');
+    const snapshot = document.getElementById('cameraSnapshot');
+    const feedWrap = document.getElementById('cameraFeedWrap');
+    const btnCap   = document.getElementById('btnCapture');
+    const btnRet   = document.getElementById('btnRetake');
+    const hint     = document.getElementById('cameraHint');
+
+    canvas.width  = video.videoWidth  || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    /* un-mirror so face data is correct for recognition */
+    ctx.save();
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.restore();
+
+    /* show snapshot */
+    snapshot.src = canvas.toDataURL('image/jpeg', 0.95);
+    feedWrap.classList.add('hidden');
+    snapshot.classList.remove('hidden');
+    snapshot.style.opacity = '0';
+    requestAnimationFrame(() => {
+        snapshot.style.transition = 'opacity .3s';
+        snapshot.style.opacity    = '1';
+    });
+
+    btnCap.classList.add('hidden');
+    btnRet.classList.remove('hidden');
+    hint.textContent = '✅ Photo captured! Click Register Face to save, or Retake to redo.';
+
+    /* inject blob into the SHARED file input */
+    canvas.toBlob(blob => {
+        const file = new File([blob], 'camera_capture.jpg', { type: 'image/jpeg' });
+        const dt   = new DataTransfer();
+        dt.items.add(file);
+        fileInput.files = dt.files;   /* ← same input Flask reads */
+        photoReady = true;
+    }, 'image/jpeg', 0.95);
+
+    stopCamera();
+}
+
+/* ── Retake ───────────────────────────────────────────────── */
+function retakePhoto() {
+    fileInput.value = '';
+    photoReady = false;
+    document.getElementById('cameraHint').textContent = 'Position your face in the circle and click Capture.';
+    startCamera();
+}
+
+/* ── Submit validation ────────────────────────────────────── */
+document.getElementById('faceRegisterForm').addEventListener('submit', function(e) {
+    /* upload mode: must have a file */
+    if (currentTab === 'upload' && (!fileInput.files || !fileInput.files.length)) {
+        e.preventDefault();
+        document.getElementById('uploadError').classList.remove('hidden');
+        return;
+    }
+    /* camera mode: must have captured */
+    if (currentTab === 'camera' && (!fileInput.files || !fileInput.files.length)) {
+        e.preventDefault();
+        document.getElementById('cameraHint').textContent = '⚠️ Please capture a photo first.';
+        document.getElementById('cameraHint').style.color = '#f87171';
+        return;
+    }
+    document.getElementById('uploadError').classList.add('hidden');
+});
+
+window.addEventListener('beforeunload', stopCamera);
+</script>
+{% endblock %}

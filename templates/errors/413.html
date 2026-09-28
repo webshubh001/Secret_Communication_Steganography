@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}File Too Large{% endblock %}
+
+{% block content %}
+<div class="page-container page-narrow">
+    <div class="error-container">
+        <div class="error-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 14l-4 4m0 0l4 4m-4-4h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0" /> <!-- To balance the SVG visually -->
+                <path d="M16 16v1a3 3 0 003 3H5a3 3 0 01-3-3v-1m14-8l4 4m0 0l-4 4m4-4H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="rotate(90 12 12)" style="color: #ef4444; stroke-width: 3px;"/>
+            </svg>
+        </div>
+        <h1 class="error-code">413</h1>
+        <h2 class="error-title">File Too Large</h2>
+        <p class="error-msg">The file you uploaded exceeds the maximum allowed size (16 MB). Please use a smaller file or image.</p>
+        <div class="error-actions">
+            <a href="javascript:history.back()" class="btn btn-primary">Go Back and Try Again</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

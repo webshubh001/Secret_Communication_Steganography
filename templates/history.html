@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Activity History{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Activity History</h1>
+            <p class="page-subtitle">Complete audit log of your encodings, decodings, and authentications.</p>
+        </div>
+    </div>
+
+    <div class="history-layout">
+        <!-- Main timeline: Messages -->
+        <div class="history-main">
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2>Message Sessions</h2>
+                </div>
+                
+                {% if messages.items %}
+                <div class="timeline">
+                    {% for msg in messages.items %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker {{ 'success' if msg.status == 'decoded' else 'pending' }}">
+                            {% if msg.status == 'decoded' %}
+                            <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            {% else %}
+                            <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            {% endif %}
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <h3>Session {{ msg.message_id[:8] }}...</h3>
+                                <span class="timeline-time">{{ msg.created_at.strftime('%d %b %Y, %H:%M') }}</span>
+                            </div>
+                            <div class="timeline-body">
+                                <p><strong>Data Type:</strong> {{ msg.data_type.title() }}</p>
+                                <p><strong>Chunks:</strong> {{ msg.total_chunks }} stego images generated</p>
+                                {% if msg.status == 'decoded' %}
+                                <p><strong>Decoded At:</strong> {{ msg.decoded_at.strftime('%d %b %Y, %H:%M') }}</p>
+                                {% endif %}
+                                <div class="mt-1">
+                                    <span class="badge badge-{{ 'success' if msg.status == 'decoded' else 'info' }}">
+                                        {{ msg.status.title() }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                {% if messages.pages > 1 %}
+                <div class="pagination mt-2">
+                    {% if messages.has_prev %}
+                        <a href="{{ url_for('dashboard.history', page=messages.prev_num) }}" class="btn btn-outline btn-sm">&larr; Previous</a>
+                    {% else %}
+                        <button class="btn btn-outline btn-sm" disabled>&larr; Previous</button>
+                    {% endif %}
+                    
+                    <span class="page-info">Page {{ messages.page }} of {{ messages.pages }}</span>
+                    
+                    {% if messages.has_next %}
+                        <a href="{{ url_for('dashboard.history', page=messages.next_num) }}" class="btn btn-outline btn-sm">Next &rarr;</a>
+                    {% else %}
+                        <button class="btn btn-outline btn-sm" disabled>Next &rarr;</button>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                {% else %}
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <p>No message history found.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Sidebar: Auth Logs -->
+        <div class="history-sidebar">
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2>Authentication Logs</h2>
+                </div>
+                
+                {% if auth_logs %}
+                <div class="auth-log-list">
+                    {% for log in auth_logs %}
+                    <div class="auth-log-item {{ 'log-success' if log.status == 'success' else 'log-failure' }}">
+                        <div class="log-icon">
+                            {% if log.authentication_type == 'face' %}
+                                <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M6 20v-2a4 4 0 014-4h4a4 4 0 014 4v2" stroke="currentColor" stroke-width="2"/></svg>
+                            {% else %}
+                                <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2"/></svg>
+                            {% endif %}
+                        </div>
+                        <div class="log-details">
+                            <div class="log-top">
+                                <strong>{{ log.authentication_type.title() }} Auth</strong>
+                                <span class="log-time">{{ log.timestamp.strftime('%d %b, %H:%M') }}</span>
+                            </div>
+                            <div class="log-bottom">
+                                <span class="badge {{ 'badge-success' if log.status == 'success' else 'badge-danger' }} badge-sm">
+                                    {{ log.status }}
+                                </span>
+                                {% if log.detail %}
+                                <span class="log-msg" title="{{ log.detail }}">{{ log.detail[:30] }}{{ '...' if log.detail|length > 30 else '' }}</span>
+                                {% endif %}
+                                <span class="log-ip">{{ log.ip_address }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <p>No authentication logs yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

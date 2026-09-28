@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Decode Secret{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Decode a Secret</h1>
+            <p class="page-subtitle">Upload all stego images from a session. Face authentication has been verified.</p>
+        </div>
+        <div class="face-auth-badge">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="currentColor" stroke-width="2"/></svg>
+            Face Auth Verified
+        </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('decode.decode') }}"
+          enctype="multipart/form-data" id="decodeForm">
+
+        <div class="glass-card decode-card">
+            <div class="card-header">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Stego Images
+                </h2>
+                <span class="card-badge" id="stegoCount">0 images selected</span>
+            </div>
+
+            <!-- Important note -->
+            <div class="info-banner">
+                <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <p>You must upload <strong>all</strong> stego images from the same encoding session. Missing even one image will make reconstruction impossible.</p>
+            </div>
+
+            <!-- Drop Zone -->
+            <div class="drop-zone drop-zone-lg" id="stegoDropZone" tabindex="0" role="button">
+                <div class="drop-zone-inner">
+                    <svg viewBox="0 0 24 24" fill="none" class="drop-icon">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <p class="drop-title">Drop all stego images here</p>
+                    <p class="drop-subtitle">or click to browse</p>
+                    <span class="drop-hint">PNG/JPG/BMP &bull; Select all stego images from the session</span>
+                </div>
+                <input type="file" name="stego_images" id="stegoImages"
+                       accept=".png,.jpg,.jpeg,.bmp" multiple class="file-input" required>
+            </div>
+
+            <!-- Stego image previews -->
+            <div class="image-preview-grid" id="stegoPreviewGrid"></div>
+
+            <!-- Decode pipeline steps (visual) -->
+            <div class="decode-steps">
+                <div class="decode-step" id="dStep1">
+                    <div class="dstep-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <span>LSB Extract</span>
+                </div>
+                <div class="dstep-arrow">→</div>
+                <div class="decode-step" id="dStep2">
+                    <div class="dstep-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0 0h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <span>Reconstruct</span>
+                </div>
+                <div class="dstep-arrow">→</div>
+                <div class="decode-step" id="dStep3">
+                    <div class="dstep-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="currentColor" stroke-width="2"/></svg></div>
+                    <span>Verify Hash</span>
+                </div>
+                <div class="dstep-arrow">→</div>
+                <div class="decode-step" id="dStep4">
+                    <div class="dstep-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+                    <span>AES Decrypt</span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg btn-full mt-2" id="decodeBtn">
+                <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2"/></svg>
+                <span class="btn-text">Decrypt &amp; Reveal Secret</span>
+                <span class="btn-loader hidden">
+                    <svg class="spinner" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="60" stroke-dashoffset="15"/></svg>
+                    Decoding…
+                </span>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
