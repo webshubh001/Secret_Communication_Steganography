@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+{% endblock %}
+
 {% block content %}
 <!-- ─── Hero Section ───────────────────────────────────────────────────────────── -->
 <section class="hero">
@@ -72,8 +76,8 @@
         <div class="security-diagram">
             <div class="diagram-center">
                 <svg viewBox="0 0 80 80" fill="none" class="shield-icon">
-                    <path d="M40 4L8 18V38C8 55.8 22.5 72.4 40 76C57.5 72.4 72 55.8 72 38V18L40 4Z" stroke="currentColor"" stroke-width="3" fill="none"/>
-                    <path d="M28 40L36 48L52 32" stroke="currentColor"" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M40 4L8 18V38C8 55.8 22.5 72.4 40 76C57.5 72.4 72 55.8 72 38V18L40 4Z" stroke="currentColor" stroke-width="3" fill="none"/>
+                    <path d="M28 40L36 48L52 32" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
                     
                 </svg>
             </div>

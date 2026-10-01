@@ -6,11 +6,59 @@
     <div class="page-header">
         <div>
             <h1 class="page-title">Decode a Secret</h1>
-            <p class="page-subtitle">Upload all stego images from a session. Face authentication has been verified.</p>
+            <p class="page-subtitle">Upload all stego images from the session. Both receiver and sender face verification will be performed before the secret is revealed.</p>
         </div>
         <div class="face-auth-badge">
             <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="currentColor" stroke-width="2"/></svg>
-            Face Auth Verified
+            Receiver Auth Verified
+        </div>
+    </div>
+
+    <!-- Decode pipeline steps (status display) -->
+    <div class="glass-card" style="margin-bottom:1.5rem; padding:1.25rem 1.5rem;">
+        <h2 style="margin-bottom:1rem; font-size:1rem; color:var(--text-secondary);">Decode Pipeline</h2>
+        <div class="decode-steps" style="flex-wrap:wrap; gap:0.75rem;">
+            <div class="decode-step" id="dStep1" title="Upload stego images">
+                <div class="dstep-icon">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <span>Upload Images</span>
+            </div>
+            <div class="dstep-arrow">→</div>
+            <div class="decode-step" id="dStep2" title="Receiver face authentication">
+                <div class="dstep-icon">
+                    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <span>Receiver Auth</span>
+            </div>
+            <div class="dstep-arrow">→</div>
+            <div class="decode-step" id="dStep3" title="Sender face verification">
+                <div class="dstep-icon">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="currentColor" stroke-width="2"/></svg>
+                </div>
+                <span>Sender Verify</span>
+            </div>
+            <div class="dstep-arrow">→</div>
+            <div class="decode-step" id="dStep4" title="SHA-256 integrity">
+                <div class="dstep-icon">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="currentColor" stroke-width="2"/></svg>
+                </div>
+                <span>SHA-256 Verify</span>
+            </div>
+            <div class="dstep-arrow">→</div>
+            <div class="decode-step" id="dStep5" title="LSTM validation">
+                <div class="dstep-icon">
+                    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M16.9 16.9l1.4 1.4M5.6 18.4l1.4-1.4M16.9 7.1l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <span>LSTM Check</span>
+            </div>
+            <div class="dstep-arrow">→</div>
+            <div class="decode-step" id="dStep6" title="AES decryption">
+                <div class="dstep-icon">
+                    <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <span>AES Decrypt</span>
+            </div>
         </div>
     </div>
 
@@ -21,12 +69,11 @@
             <div class="card-header">
                 <h2>
                     <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Stego Images
+                    Step 1 — Stego Images
                 </h2>
                 <span class="card-badge" id="stegoCount">0 images selected</span>
             </div>
 
-            <!-- Important note -->
             <div class="info-banner">
                 <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 <p>You must upload <strong>all</strong> stego images from the same encoding session. Missing even one image will make reconstruction impossible.</p>
@@ -45,42 +92,141 @@
                 <input type="file" name="stego_images" id="stegoImages"
                        accept=".png,.jpg,.jpeg,.bmp" multiple class="file-input" required>
             </div>
-
-            <!-- Stego image previews -->
             <div class="image-preview-grid" id="stegoPreviewGrid"></div>
+        </div>
 
-            <!-- Decode pipeline steps (visual) -->
-            <div class="decode-steps">
-                <div class="decode-step" id="dStep1">
-                    <div class="dstep-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-                    <span>LSB Extract</span>
-                </div>
-                <div class="dstep-arrow">→</div>
-                <div class="decode-step" id="dStep2">
-                    <div class="dstep-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0 0h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-                    <span>Reconstruct</span>
-                </div>
-                <div class="dstep-arrow">→</div>
-                <div class="decode-step" id="dStep3">
-                    <div class="dstep-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="currentColor" stroke-width="2"/></svg></div>
-                    <span>Verify Hash</span>
-                </div>
-                <div class="dstep-arrow">→</div>
-                <div class="decode-step" id="dStep4">
-                    <div class="dstep-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-                    <span>AES Decrypt</span>
-                </div>
+        <!-- Step 3: Sender face verification -->
+        <div class="glass-card" id="senderVerifyCard" style="margin-top:1.5rem;">
+            <div class="card-header">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Step 3 — Sender Face Verification
+                </h2>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-lg btn-full mt-2" id="decodeBtn">
+            <div class="info-banner" style="border-color:rgba(139,92,246,0.4); background:rgba(139,92,246,0.06);">
+                <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgb(139,92,246)" stroke-width="2"/><path d="M12 16v-4M12 8h.01" stroke="rgb(139,92,246)" stroke-width="2" stroke-linecap="round"/></svg>
+                <p>Upload a photo of the <strong>expected sender</strong> to verify their identity. The system will compare it against the sender's registered face profile.</p>
+            </div>
+
+            {% if require_sender_face is defined and require_sender_face %}
+            <div class="info-banner" style="border-color:#f59e0b; background:rgba(245,158,11,0.08);">
+                <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#f59e0b" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/></svg>
+                <p style="color:#f59e0b;">Expected sender: <strong>{{ sender_username }}</strong>. Please upload their photo below.</p>
+            </div>
+            {% endif %}
+
+            <div class="form-group mt-1">
+                <label class="form-label">Sender Face Image</label>
+                <div class="drop-zone drop-zone-sm" id="senderFaceDropZone">
+                    <div class="drop-zone-inner" id="senderFaceDropInner">
+                        <svg viewBox="0 0 24 24" fill="none" class="drop-icon drop-icon-sm"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        <p class="drop-title">Upload sender's face photo</p>
+                        <span class="drop-hint">PNG, JPG, JPEG &bull; Single face visible &bull; Well-lit</span>
+                    </div>
+                    <input type="file" name="sender_face_image" id="senderFaceImage"
+                           accept=".png,.jpg,.jpeg" class="file-input">
+                </div>
+                <div id="senderFaceSelected" class="hidden" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-white);">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <img id="senderFacePreview" src="" alt="Face preview" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);" />
+                        <span id="senderFaceName" style="font-weight: 500; color: var(--text-dark);"></span>
+                    </div>
+                    <button type="button" id="clearSenderFace" style="background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; padding: 0.5rem; line-height: 1;">&times;</button>
+                </div>
+                <div class="form-hint mt-1">
+                    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Upload a clear photograph of the sender's face. This will be compared against their registered face profile. For legacy messages without face verification, this step is skipped.
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <div style="text-align:center; margin-top:2rem;">
+            <button type="submit" class="btn btn-primary btn-lg btn-full" id="decodeBtn" style="max-width:400px;">
                 <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2"/></svg>
-                <span class="btn-text">Decrypt &amp; Reveal Secret</span>
+                <span class="btn-text">Verify &amp; Decrypt Secret</span>
                 <span class="btn-loader hidden">
                     <svg class="spinner" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="60" stroke-dashoffset="15"/></svg>
                     Decoding…
                 </span>
             </button>
+            <p class="submit-hint" style="margin-top:0.75rem;">
+                Steps: Upload → Receiver auth ✓ → Sender verify → SHA-256 → LSTM → AES Decrypt
+            </p>
         </div>
     </form>
 </div>
+
+<script>
+(function () {
+    // Stego image previews
+    const stegoInput = document.getElementById('stegoImages');
+    const stegoCount = document.getElementById('stegoCount');
+    const stegoGrid  = document.getElementById('stegoPreviewGrid');
+
+    stegoInput.addEventListener('change', function () {
+        const n = this.files.length;
+        stegoCount.textContent = `${n} image${n !== 1 ? 's' : ''} selected`;
+        stegoGrid.innerHTML = '';
+        Array.from(this.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const div = document.createElement('div');
+                div.className = 'preview-item';
+                div.innerHTML = `<img src="${e.target.result}" alt="${file.name}" /><span>${file.name}</span>`;
+                stegoGrid.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
+    // Sender face image
+    const senderFaceInput    = document.getElementById('senderFaceImage');
+    const senderFaceSelected = document.getElementById('senderFaceSelected');
+    const senderFaceName     = document.getElementById('senderFaceName');
+    const clearSenderFace    = document.getElementById('clearSenderFace');
+
+    const senderFaceDropZone = document.getElementById('senderFaceDropZone');
+
+    if (senderFaceDropZone) {
+        senderFaceDropZone.addEventListener('click', () => {
+            senderFaceInput.click();
+        });
+    }
+
+    senderFaceInput.addEventListener('change', function () {
+        if (this.files.length) {
+            senderFaceName.textContent = this.files[0].name;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('senderFacePreview').src = e.target.result;
+                senderFaceSelected.classList.remove('hidden');
+                document.getElementById('senderFaceDropZone').classList.add('hidden');
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+    clearSenderFace.addEventListener('click', (e) => {
+        e.stopPropagation(); // prevent triggering the dropzone click again
+        senderFaceInput.value = '';
+        senderFaceSelected.classList.add('hidden');
+        document.getElementById('senderFaceDropZone').classList.remove('hidden');
+    });
+
+    // Submit spinner + highlight active steps
+    document.getElementById('decodeForm').addEventListener('submit', function () {
+        const btn = document.getElementById('decodeBtn');
+        btn.querySelector('.btn-text').classList.add('hidden');
+        btn.querySelector('.btn-loader').classList.remove('hidden');
+        btn.disabled = true;
+        // Visually activate steps 1–3
+        ['dStep1','dStep2','dStep3'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.color = 'var(--accent-primary)';
+        });
+    });
+})();
+</script>
 {% endblock %}

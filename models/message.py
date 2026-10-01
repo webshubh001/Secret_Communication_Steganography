@@ -1,5 +1,12 @@
 """
 models/message.py — SecretMessage and StegoImage database models.
+
+v2 Changes:
+  - receiver_id FK → users.id  (nullable — backward compatible)
+  - sender_face_profile_id FK → face_profiles.id  (nullable)
+  - receiver_face_profile_id FK → face_profiles.id  (nullable)
+  - is_legacy property to detect pre-v2 messages
+  - ae_reconstruction_loss on StegoImage (nullable)
 """
 
 from datetime import datetime, timezone
@@ -9,7 +16,13 @@ from models import db
 class SecretMessage(db.Model):
     """
     Represents a single encoding session.
-    Links the sender, the AES key (encrypted), and all generated stego images.
+    Links the sender, optional receiver, encrypted AES key, and stego images.
+
+    For v2+ messages:
+      • receiver_id              — intended recipient user
+      • sender_face_profile_id  — snapshot reference of sender's face profile
+      • receiver_face_profile_id — snapshot reference of receiver's face profile
+    Legacy messages (created before v2) have all three as NULL.
     """
 
     __tablename__ = 'secret_messages'
@@ -21,6 +34,23 @@ class SecretMessage(db.Model):
 
     sender_id = db.Column(
         db.Integer, db.ForeignKey('users.id'), nullable=False
+    )
+
+    # ── v2: receiver ────────────────────────────────────────────────────────────
+    receiver_id = db.Column(
+        db.Integer, db.ForeignKey('users.id'), nullable=True
+    )
+
+    # ── v2: face profile references at the time of encoding ────────────────────
+    # These are foreign keys to FaceProfile.id, NOT raw embeddings.
+    # If the face profile is later deleted, set NULL (no cascade delete).
+    sender_face_profile_id = db.Column(
+        db.Integer, db.ForeignKey('face_profiles.id', ondelete='SET NULL'),
+        nullable=True
+    )
+    receiver_face_profile_id = db.Column(
+        db.Integer, db.ForeignKey('face_profiles.id', ondelete='SET NULL'),
+        nullable=True
     )
 
     # Optional: original filename if the secret was a file upload
@@ -47,11 +77,27 @@ class SecretMessage(db.Model):
     sender = db.relationship(
         'User', back_populates='messages', foreign_keys=[sender_id]
     )
+    receiver = db.relationship(
+        'User', back_populates='received_messages', foreign_keys=[receiver_id]
+    )
+    # Read-only face profile refs — do NOT cascade delete on these
+    sender_face_profile_ref = db.relationship(
+        'FaceProfile', foreign_keys=[sender_face_profile_id], passive_deletes=True
+    )
+    receiver_face_profile_ref = db.relationship(
+        'FaceProfile', foreign_keys=[receiver_face_profile_id], passive_deletes=True
+    )
     stego_images = db.relationship(
         'StegoImage', back_populates='message',
         cascade='all, delete-orphan',
         order_by='StegoImage.chunk_index'
     )
+
+    # ── Helpers ─────────────────────────────────────────────────────────────────
+    @property
+    def is_legacy(self) -> bool:
+        """True if this message predates the v2 sender/receiver face-auth feature."""
+        return self.receiver_id is None
 
     def __repr__(self):
         return f'<SecretMessage {self.message_id[:8]}... chunks={self.total_chunks}>'
@@ -60,7 +106,6 @@ class SecretMessage(db.Model):
 class StegoImage(db.Model):
     """
     Represents one stego image (one chunk of the encrypted data).
-    Each stego image embeds exactly one chunk of the split ciphertext.
     """
 
     __tablename__ = 'stego_images'
@@ -71,27 +116,24 @@ class StegoImage(db.Model):
     )
     chunk_index = db.Column(db.Integer, nullable=False)   # 0-based
 
-    # Path relative to STEGO_FOLDER (stored without the absolute prefix
-    # to remain portable if the upload folder is moved)
     file_path = db.Column(db.String(512), nullable=False)
-
-    # SHA-256 of the stego image file itself (for tamper detection)
     file_hash = db.Column(db.String(64), nullable=False)
-
-    # SHA-256 of the embedded chunk bytes (for chunk-level integrity)
     chunk_hash = db.Column(db.String(64), nullable=False)
 
-    # Image quality metrics compared to the original cover image
+    # LSB image quality metrics
     mse = db.Column(db.Float, nullable=True)
     psnr = db.Column(db.Float, nullable=True)
     ssim = db.Column(db.Float, nullable=True)
 
+    # v2: Autoencoder reconstruction loss (nullable for legacy images)
+    ae_reconstruction_loss = db.Column(db.Float, nullable=True)
+
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
-    # ── Relationship ────────────────────────────────────────────────────────────
     message = db.relationship('SecretMessage', back_populates='stego_images')
 
     def __repr__(self):
         return (
             f'<StegoImage chunk={self.chunk_index}/{self.message.total_chunks - 1}>'
         )
+

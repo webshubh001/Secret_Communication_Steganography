@@ -35,6 +35,12 @@ class User(UserMixin, db.Model):
         foreign_keys='SecretMessage.sender_id',
         cascade='all, delete-orphan'
     )
+    # v2: messages where this user is the intended receiver
+    received_messages = db.relationship(
+        'SecretMessage', back_populates='receiver',
+        foreign_keys='SecretMessage.receiver_id',
+        cascade='all, delete-orphan'
+    )
     auth_logs = db.relationship(
         'AuthenticationLog', back_populates='user',
         cascade='all, delete-orphan'
@@ -43,6 +49,7 @@ class User(UserMixin, db.Model):
         'ActivityLog', back_populates='user',
         cascade='all, delete-orphan'
     )
+
 
     # ── Password helpers ────────────────────────────────────────────────────────
     def set_password(self, password: str) -> None:

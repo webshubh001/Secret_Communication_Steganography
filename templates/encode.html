@@ -6,7 +6,7 @@
     <div class="page-header">
         <div>
             <h1 class="page-title">Encode a Secret</h1>
-            <p class="page-subtitle">Upload {{ min_images }}–{{ max_images }} cover images and your secret payload to begin the 6-layer encoding pipeline.</p>
+            <p class="page-subtitle">Upload {{ min_images }}–{{ max_images }} cover images, select a receiver, and enter your secret payload to begin the 8-layer encoding pipeline.</p>
         </div>
     </div>
 
@@ -14,22 +14,22 @@
     <div class="pipeline-progress">
         <div class="progress-step active" data-step="1">
             <div class="progress-dot">1</div>
-            <span>Upload Images</span>
+            <span>Select Receiver</span>
         </div>
         <div class="progress-line"></div>
         <div class="progress-step" data-step="2">
             <div class="progress-dot">2</div>
-            <span>Set Payload</span>
+            <span>Upload Images</span>
         </div>
         <div class="progress-line"></div>
         <div class="progress-step" data-step="3">
             <div class="progress-dot">3</div>
-            <span>Review &amp; Encode</span>
+            <span>Set Payload</span>
         </div>
         <div class="progress-line"></div>
         <div class="progress-step" data-step="4">
             <div class="progress-dot">4</div>
-            <span>Download ZIP</span>
+            <span>Encode &amp; Download</span>
         </div>
     </div>
 
@@ -37,42 +37,99 @@
           enctype="multipart/form-data" id="encodeForm">
 
         <div class="encode-grid">
-            <!-- Left: Cover images -->
-            <div class="glass-card">
-                <div class="card-header">
-                    <h2>
-                        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                        Cover Images
-                    </h2>
-                    <span class="card-badge" id="imageCount">0 / {{ max_images }}</span>
-                </div>
 
-                <!-- Drop Zone -->
-                <div class="drop-zone" id="dropZone" tabindex="0" role="button"
-                     aria-label="Drop cover images here or click to browse">
-                    <div class="drop-zone-inner" id="dropZoneInner">
-                        <svg viewBox="0 0 24 24" fill="none" class="drop-icon">
-                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <p class="drop-title">Drag &amp; drop images here</p>
-                        <p class="drop-subtitle">or click to browse files</p>
-                        <span class="drop-hint">PNG, JPG, BMP &bull; Min {{ min_images }}, Max {{ max_images }} images &bull; 16 MB per file</span>
+            <!-- LEFT COLUMN -->
+            <div style="display:flex; flex-direction:column; gap:1.5rem;">
+
+                <!-- Receiver Selection Card -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <h2>
+                            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            Receiver
+                        </h2>
+                        <span class="card-badge" id="receiverBadge">Not selected</span>
                     </div>
-                    <input type="file" name="cover_images" id="coverImages"
-                           accept=".png,.jpg,.jpeg,.bmp" multiple class="file-input"
-                           required data-min="{{ min_images }}" data-max="{{ max_images }}">
+
+                    {% if not sender_has_face %}
+                    <div class="info-banner" style="border-color:#ef4444; background:rgba(239,68,68,0.08);">
+                        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#ef4444" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/></svg>
+                        <p style="color:#ef4444;"><strong>Your face is not registered.</strong> You must <a href="{{ url_for('face.register_face') }}" style="color:#ef4444;text-decoration:underline;">register your face</a> before encoding messages.</p>
+                    </div>
+                    {% else %}
+                    <div class="info-banner" style="border-color:#22c55e; background:rgba(34,197,94,0.08);">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="10" stroke="#22c55e" stroke-width="2"/></svg>
+                        <p style="color:#22c55e;"><strong>✓ Sender identity available</strong> — your face profile is registered.</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="form-group mt-1">
+                        <label for="receiver_id" class="form-label">Select Receiver</label>
+                        <select name="receiver_id" id="receiver_id" class="form-input" required>
+                            <option value="">— Select registered receiver —</option>
+                        </select>
+                        <div class="form-hint mt-1">
+                            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            Only users with registered face profiles appear here.
+                        </div>
+                    </div>
+
+                    <!-- Receiver status indicators -->
+                    <div id="receiverStatus" class="hidden" style="margin-top:1rem;">
+                        <div id="receiverOk" class="hidden">
+                            <div style="display:flex; flex-direction:column; gap:0.5rem; padding:0.75rem; background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.3); border-radius:0.5rem;">
+                                <div style="display:flex; align-items:center; gap:0.5rem; color:#22c55e; font-size:0.875rem;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg>
+                                    Receiver has registered face
+                                </div>
+                                <div style="display:flex; align-items:center; gap:0.5rem; color:#22c55e; font-size:0.875rem;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg>
+                                    Ready for secure encoding
+                                </div>
+                            </div>
+                        </div>
+                        <div id="receiverErr" class="hidden">
+                            <div style="display:flex; align-items:center; gap:0.5rem; color:#ef4444; padding:0.75rem; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.3); border-radius:0.5rem; font-size:0.875rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M15 9l-6 6M9 9l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                <span id="receiverErrMsg">Receiver face authentication is unavailable.</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Image previews -->
-                <div class="image-preview-grid" id="imagePreviewGrid"></div>
+                <!-- Cover Images Card -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <h2>
+                            <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            Cover Images
+                        </h2>
+                        <span class="card-badge" id="imageCount">0 / {{ max_images }}</span>
+                    </div>
 
-                <div class="form-hint mt-1">
-                    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Use large images (&gt;500×500 px) to ensure sufficient hiding capacity.
+                    <div class="drop-zone" id="dropZone" tabindex="0" role="button"
+                         aria-label="Drop cover images here or click to browse">
+                        <div class="drop-zone-inner" id="dropZoneInner">
+                            <svg viewBox="0 0 24 24" fill="none" class="drop-icon">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <p class="drop-title">Drag &amp; drop images here</p>
+                            <p class="drop-subtitle">or click to browse files</p>
+                            <span class="drop-hint">PNG, JPG, BMP &bull; Min {{ min_images }}, Max {{ max_images }} images &bull; 16 MB per file</span>
+                        </div>
+                        <input type="file" name="cover_images" id="coverImages"
+                               accept=".png,.jpg,.jpeg,.bmp" multiple class="file-input"
+                               required data-min="{{ min_images }}" data-max="{{ max_images }}">
+                    </div>
+                    <div class="image-preview-grid" id="imagePreviewGrid"></div>
+                    <div class="form-hint mt-1">
+                        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        Use large images (&gt;500×500 px) to ensure sufficient hiding capacity.
+                    </div>
                 </div>
             </div>
 
-            <!-- Right: Secret payload -->
+            <!-- RIGHT COLUMN: Secret Payload -->
             <div class="glass-card">
                 <div class="card-header">
                     <h2>
@@ -133,8 +190,10 @@
                         <span class="security-badge">AES-256-CBC</span>
                         <span class="security-badge">SHA-256</span>
                         <span class="security-badge">LSB Steganography</span>
+                        <span class="security-badge">LSTM (Unit IV)</span>
+                        <span class="security-badge">Autoencoder (Unit V)</span>
                     </div>
-                    <p class="security-note">Your secret will be encrypted before being hidden across all images.</p>
+                    <p class="security-note">Secret is encrypted, processed by LSTM, and hidden across all images. Only the selected receiver can decode it after dual face verification.</p>
                 </div>
             </div>
         </div>
@@ -149,8 +208,170 @@
                     Encoding…
                 </span>
             </button>
-            <p class="submit-hint">This may take a few seconds depending on image sizes.</p>
+            <p class="submit-hint">This may take a few seconds depending on image sizes and model processing.</p>
         </div>
     </form>
 </div>
+
+<script>
+// ── Receiver dropdown population ──────────────────────────────────────────────
+(function () {
+    const sel = document.getElementById('receiver_id');
+    const badge = document.getElementById('receiverBadge');
+    const statusDiv = document.getElementById('receiverStatus');
+    const okDiv = document.getElementById('receiverOk');
+    const errDiv = document.getElementById('receiverErr');
+    const errMsg = document.getElementById('receiverErrMsg');
+    const encodeBtn = document.getElementById('encodeBtn');
+    let receiverValid = false;
+
+    // Fetch eligible receivers from API
+    fetch('{{ url_for("encode.list_receivers") }}')
+        .then(r => r.json())
+        .then(users => {
+            if (users.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = '— No users with registered face profiles —';
+                opt.disabled = true;
+                sel.appendChild(opt);
+            } else {
+                users.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u.id;
+                    opt.textContent = `${u.username} (${u.email})`;
+                    sel.appendChild(opt);
+                });
+            }
+        })
+        .catch(() => {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = '— Could not load receivers —';
+            opt.disabled = true;
+            sel.appendChild(opt);
+        });
+
+    sel.addEventListener('change', function () {
+        const rid = this.value;
+        if (!rid) {
+            statusDiv.classList.add('hidden');
+            badge.textContent = 'Not selected';
+            receiverValid = false;
+            updateBtn();
+            return;
+        }
+
+        // Validate selected receiver server-side
+        fetch(`{{ url_for("encode.receiver_status") }}?receiver_id=${rid}`)
+            .then(r => r.json())
+            .then(data => {
+                statusDiv.classList.remove('hidden');
+                if (data.valid) {
+                    okDiv.classList.remove('hidden');
+                    errDiv.classList.add('hidden');
+                    badge.textContent = data.username;
+                    badge.style.background = 'rgba(34,197,94,0.15)';
+                    badge.style.color = '#22c55e';
+                    receiverValid = true;
+                } else {
+                    okDiv.classList.add('hidden');
+                    errDiv.classList.remove('hidden');
+                    errMsg.textContent = data.error || 'Receiver face authentication is unavailable.';
+                    badge.textContent = 'Invalid';
+                    badge.style.background = 'rgba(239,68,68,0.15)';
+                    badge.style.color = '#ef4444';
+                    receiverValid = false;
+                }
+                updateBtn();
+            });
+    });
+
+    // Cover image counter
+    const coverInput = document.getElementById('coverImages');
+    const imageCount = document.getElementById('imageCount');
+    const minImages = parseInt(coverInput.dataset.min);
+    const maxImages = parseInt(coverInput.dataset.max);
+    let imagesOk = false;
+
+    coverInput.addEventListener('change', function () {
+        const n = this.files.length;
+        imageCount.textContent = `${n} / ${maxImages}`;
+        imagesOk = n >= minImages && n <= maxImages;
+        // Build previews
+        const grid = document.getElementById('imagePreviewGrid');
+        grid.innerHTML = '';
+        Array.from(this.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const div = document.createElement('div');
+                div.className = 'preview-item';
+                div.innerHTML = `<img src="${e.target.result}" alt="${file.name}" /><span>${file.name}</span>`;
+                grid.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+        updateBtn();
+    });
+
+    function updateBtn() {
+        const senderOk = {{ 'true' if sender_has_face else 'false' }};
+        encodeBtn.disabled = !(senderOk && receiverValid && imagesOk);
+    }
+
+    // Text/File toggle
+    const textToggle = document.getElementById('textToggle');
+    const fileToggle = document.getElementById('fileToggle');
+    const textPanel = document.getElementById('textPanel');
+    const filePanel = document.getElementById('filePanel');
+    const secretType = document.getElementById('secretType');
+    const charCount = document.getElementById('charCount');
+    const textarea = document.getElementById('secret_text');
+
+    textToggle.addEventListener('click', () => {
+        textToggle.classList.add('active');
+        fileToggle.classList.remove('active');
+        textPanel.classList.remove('hidden');
+        filePanel.classList.add('hidden');
+        secretType.value = 'text';
+    });
+    fileToggle.addEventListener('click', () => {
+        fileToggle.classList.add('active');
+        textToggle.classList.remove('active');
+        filePanel.classList.remove('hidden');
+        textPanel.classList.add('hidden');
+        secretType.value = 'file';
+    });
+    textarea.addEventListener('input', () => {
+        charCount.textContent = textarea.value.length;
+    });
+
+    // File clear
+    const secretFile = document.getElementById('secretFile');
+    const selectedFile = document.getElementById('selectedFile');
+    const selectedFileName = document.getElementById('selectedFileName');
+    const clearFile = document.getElementById('clearFile');
+    secretFile.addEventListener('change', function () {
+        if (this.files.length) {
+            selectedFileName.textContent = this.files[0].name;
+            selectedFile.classList.remove('hidden');
+            document.getElementById('fileDropInner').classList.add('hidden');
+        }
+    });
+    clearFile.addEventListener('click', () => {
+        secretFile.value = '';
+        selectedFile.classList.add('hidden');
+        document.getElementById('fileDropInner').classList.remove('hidden');
+    });
+
+    // Submit spinner
+    document.getElementById('encodeForm').addEventListener('submit', function () {
+        const btnText = encodeBtn.querySelector('.btn-text');
+        const loader = encodeBtn.querySelector('.btn-loader');
+        btnText.classList.add('hidden');
+        loader.classList.remove('hidden');
+        encodeBtn.disabled = true;
+    });
+})();
+</script>
 {% endblock %}
