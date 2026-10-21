@@ -84,17 +84,15 @@ def compute_ssim(original_path: str, stego_path: str) -> float:
             f"Image shapes differ: original {orig.shape} vs stego {stego.shape}."
         )
 
-    # Compute SSIM per channel and average
-    ssim_values = []
-    for channel in range(orig.shape[2]):
-        val = ssim_metric(
-            orig[:, :, channel],
-            stego[:, :, channel],
-            data_range=255.0,
-        )
-        ssim_values.append(val)
+    # Compute SSIM directly using channel_axis for significantly better performance
+    val = ssim_metric(
+        orig,
+        stego,
+        data_range=255.0,
+        channel_axis=-1,
+    )
 
-    return round(float(np.mean(ssim_values)), 6)
+    return round(float(val), 6)
 
 
 def compute_all_metrics(original_path: str, stego_path: str) -> dict:

@@ -90,4 +90,6 @@ def create_app(config_class=None):
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Disable the hot-reloader because TensorFlow modifies its own files on load,
+    # which triggers Werkzeug to abruptly restart the server and kill the request.
+    app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=False)

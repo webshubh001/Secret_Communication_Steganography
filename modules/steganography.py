@@ -72,15 +72,13 @@ def embed(image_path: str, data: bytes, output_path: str) -> None:
             f"payload size."
         )
 
-    # Encode the 4-byte length header as 32 bits
-    header_bits = format(payload_len, '032b')
-    # Encode the payload as bits
-    payload_bits = ''.join(format(b, '08b') for b in data)
-    all_bits = header_bits + payload_bits
+    # Encode the 4-byte length header + payload as bits using numpy
+    header_bytes = struct.pack('>I', payload_len)
+    full_data = header_bytes + data
+    bits_array = np.unpackbits(np.frombuffer(full_data, dtype=np.uint8))
 
-    # Embed each bit into the LSB of the corresponding pixel channel value
-    for i, bit in enumerate(all_bits):
-        flat[i] = (flat[i] & 0b11111110) | int(bit)
+    # Embed each bit into the LSB of the corresponding pixel channel value using vectorization
+    flat[:len(bits_array)] = (flat[:len(bits_array)] & 254) | bits_array
 
     stego_arr = flat.reshape(arr.shape)
     stego_img = _array_to_image(stego_arr)
@@ -106,9 +104,10 @@ def extract(stego_path: str) -> bytes:
     if flat.size < 32:
         raise ValueError("Image too small to contain any embedded data.")
 
-    # Read the 32-bit length header from the first 32 LSBs
-    header_bits = ''.join(str(flat[i] & 1) for i in range(32))
-    payload_len = int(header_bits, 2)
+    # Read the first 32 LSBs (4 bytes) to get the payload length
+    lsbs = flat & 1
+    header_bytes = np.packbits(lsbs[:32]).tobytes()
+    payload_len = struct.unpack('>I', header_bytes)[0]
 
     if payload_len == 0:
         raise ValueError(
@@ -123,7 +122,7 @@ def extract(stego_path: str) -> bytes:
             f"has capacity for {(flat.size // 8) - 4} bytes."
         )
 
-    # Read the payload bits
-    payload_bits = ''.join(str(flat[32 + i] & 1) for i in range(payload_len * 8))
-    data = bytes(int(payload_bits[i:i + 8], 2) for i in range(0, len(payload_bits), 8))
+    # Read the payload bits and pack them back into bytes
+    payload_bits = lsbs[32:required_bits]
+    data = np.packbits(payload_bits).tobytes()
     return data

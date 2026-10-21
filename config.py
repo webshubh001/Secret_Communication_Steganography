@@ -29,7 +29,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # ─── File Uploads ──────────────────────────────────────────────────────────
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB hard limit
+    MAX_CONTENT_LENGTH = 100 * 1024 * 1024  # 100 MB hard limit
     UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
     COVER_FOLDER = os.path.join(UPLOAD_FOLDER, 'covers')
     STEGO_FOLDER = os.path.join(UPLOAD_FOLDER, 'stego')

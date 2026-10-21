@@ -7,15 +7,21 @@
     <div class="page-header">
         <div>
             <h1 class="page-title">Dashboard</h1>
-            <p class="page-subtitle">Welcome back, <strong>{{ current_user.username }}</strong> — here's your security overview.</p>
+            <p class="page-subtitle">Welcome back, <strong>{{ current_user.username }}</strong> — here's your security
+                overview.</p>
         </div>
         <div class="page-actions">
             <a href="{{ url_for('encode.encode') }}" class="btn btn-primary">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+                </svg>
                 New Encode
             </a>
             <a href="{{ url_for('decode.decode') }}" class="btn btn-outline">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M21 15V19a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M21 15V19a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
                 Decode
             </a>
         </div>
@@ -24,7 +30,11 @@
     <!-- Face profile warning -->
     {% if not current_user.has_face_profile %}
     <div class="alert-banner alert-warning">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke="currentColor" stroke-width="2"/></svg>
+        <svg viewBox="0 0 24 24" fill="none">
+            <path
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                stroke="currentColor" stroke-width="2" />
+        </svg>
         <div>
             <strong>Face Profile Required</strong> — You must register your face to decode messages.
             <a href="{{ url_for('face.register_face') }}">Register now →</a>
@@ -36,7 +46,9 @@
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-card-icon" style="--accent: #6366f1">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+                </svg>
             </div>
             <div class="stat-card-content">
                 <div class="stat-card-value">{{ total_encoded }}</div>
@@ -45,7 +57,10 @@
         </div>
         <div class="stat-card">
             <div class="stat-card-icon" style="--accent: #22d3ee">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M21 15V19a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M21 15V19a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
             </div>
             <div class="stat-card-content">
                 <div class="stat-card-value">{{ total_decoded }}</div>
@@ -54,7 +69,11 @@
         </div>
         <div class="stat-card">
             <div class="stat-card-icon" style="--accent: #10b981">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="currentColor" stroke-width="2"/></svg>
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path
+                        d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                        stroke="currentColor" stroke-width="2" />
+                </svg>
             </div>
             <div class="stat-card-content">
                 <div class="stat-card-value">{{ face_auth_success }}</div>
@@ -63,7 +82,10 @@
         </div>
         <div class="stat-card">
             <div class="stat-card-icon" style="--accent: #ef4444">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/></svg>
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor"
+                        stroke-width="2" />
+                </svg>
             </div>
             <div class="stat-card-content">
                 <div class="stat-card-value">{{ face_auth_fail }}</div>
@@ -96,9 +118,15 @@
                 <div class="message-item">
                     <div class="message-icon {{ 'decoded' if msg.status == 'decoded' else msg.status }}">
                         {% if msg.status == 'decoded' %}
-                        <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
                         {% else %}
-                        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
+                            <path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
                         {% endif %}
                     </div>
                     <div class="message-info">
@@ -116,7 +144,10 @@
             </div>
             {% else %}
             <div class="empty-state">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM1 7l11-4 11 4" stroke="currentColor" stroke-width="2"/></svg>
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM1 7l11-4 11 4"
+                        stroke="currentColor" stroke-width="2" />
+                </svg>
                 <p>No messages yet. <a href="{{ url_for('encode.encode') }}">Encode your first secret →</a></p>
             </div>
             {% endif %}
@@ -153,21 +184,21 @@
 
 {% block extra_scripts %}
 <script>
-// Face Auth Doughnut Chart
-const ctx = document.getElementById('faceAuthChart').getContext('2d');
-new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-        labels: ['Successes', 'Failures'],
-        datasets: [{
-            data: [{{ face_auth_success }}, {{ face_auth_fail }}],
-            backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)'],
-            borderColor: ['rgba(16, 185, 129, 1)', 'rgba(239, 68, 68, 1)'],
-            borderWidth: 2,
-            hoverOffset: 8,
-        }]
+    // Face Auth Doughnut Chart
+    const ctx = document.getElementById('faceAuthChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Successes', 'Failures'],
+            datasets: [{
+                data: [{{ face_auth_success }}, {{ face_auth_fail }}],
+        backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)'],
+        borderColor: ['rgba(16, 185, 129, 1)', 'rgba(239, 68, 68, 1)'],
+        borderWidth: 2,
+        hoverOffset: 8,
+    }]
     },
-    options: {
+        options: {
         responsive: true,
         maintainAspectRatio: true,
         plugins: {

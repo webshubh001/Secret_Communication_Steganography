@@ -19,38 +19,38 @@
         <h2>Security Verification</h2>
         <div class="verification-grid">
             <div class="verification-item pass">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 <span>LSB Extraction</span>
             </div>
             <div class="verification-item pass">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 <span>Chunk Integrity</span>
             </div>
             <div class="verification-item pass">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 <span>SHA-256 Hash</span>
             </div>
 
             <!-- Receiver face auth — always passes (gate before decode) -->
             <div class="verification-item pass">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 <span>Receiver Face Auth</span>
             </div>
 
             <!-- Sender face verification (v2 only) -->
             {% if message.is_legacy %}
-            <div class="verification-item" style="opacity:0.5;">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M12 16v-4M12 8h.01" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/></svg>
-                <span style="color:#f59e0b;">Sender Verify (Legacy)</span>
+            <div class="verification-item warning">
+                <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+                <span>Sender Verify (Legacy)</span>
             </div>
             {% elif sender_verification_skipped is defined and sender_verification_skipped %}
-            <div class="verification-item" style="opacity:0.5;">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M12 16v-4M12 8h.01" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/></svg>
-                <span style="color:#f59e0b;">Sender Verify (Skipped)</span>
+            <div class="verification-item warning">
+                <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+                <span>Sender Verify (Skipped)</span>
             </div>
             {% else %}
             <div class="verification-item pass">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 <span>Sender Face Verified</span>
             </div>
             {% endif %}
@@ -58,20 +58,20 @@
             <!-- LSTM validation -->
             {% if lstm_validation is defined %}
                 {% if lstm_validation.skipped %}
-                <div class="verification-item" style="opacity:0.5;">
-                    <svg viewBox="0 0 24 24" fill="none"><path d="M12 16v-4M12 8h.01" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/></svg>
-                    <span style="color:#f59e0b;">LSTM (Model Unavailable)</span>
+                <div class="verification-item warning">
+                    <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+                    <span>LSTM (Unavailable)</span>
                 </div>
                 {% else %}
                 <div class="verification-item pass">
-                    <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <span>LSTM Validated</span>
                 </div>
                 {% endif %}
             {% endif %}
 
             <div class="verification-item pass">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 <span>AES Decryption</span>
             </div>
         </div>
@@ -118,19 +118,22 @@
             {% if message.is_legacy %}
             <div class="meta-item">
                 <span class="meta-label">Mode</span>
-                <span class="badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">Legacy Message</span>
+                <span class="badge badge-warning">Legacy Message</span>
             </div>
             {% endif %}
         </div>
 
         <!-- LSTM details (if available) -->
         {% if lstm_validation is defined and not lstm_validation.skipped and lstm_validation.similarity is not none %}
-        <div style="margin-top:1rem; padding:0.75rem; background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.2); border-radius:0.5rem; font-size:0.875rem;">
-            <strong style="color:var(--accent-primary);">LSTM Sequence Validation</strong>
-            <div style="display:flex; gap:2rem; margin-top:0.5rem; color:var(--text-secondary);">
+        <div class="result-highlight-card lstm-card">
+            <div class="highlight-header">
+                <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <strong>LSTM Sequence Validation</strong>
+            </div>
+            <div class="highlight-body">
                 <span>Cosine Similarity: <strong>{{ lstm_validation.similarity }}</strong></span>
-                <span>Threshold: {{ lstm_validation.threshold }}</span>
-                <span style="color:#22c55e;">✓ Passed</span>
+                <span>Threshold: <strong>{{ lstm_validation.threshold }}</strong></span>
+                <span class="badge badge-success">✓ Passed</span>
             </div>
         </div>
         {% endif %}
@@ -138,14 +141,29 @@
         <!-- Image quality metrics for first stego image -->
         {% if message.stego_images %}
         {% set first = message.stego_images[0] %}
-        <div style="margin-top:1rem; padding:0.75rem; background:rgba(34,197,94,0.05); border:1px solid rgba(34,197,94,0.15); border-radius:0.5rem; font-size:0.875rem;">
-            <strong style="color:#22c55e;">Image Quality Metrics (Chunk 1)</strong>
-            <div style="display:flex; gap:2rem; flex-wrap:wrap; margin-top:0.5rem; color:var(--text-secondary);">
-                <span>MSE: <strong>{{ '%.4f' | format(first.mse) if first.mse is not none else 'N/A' }}</strong></span>
-                <span>PSNR: <strong>{{ '%.2f dB' | format(first.psnr) if first.psnr is not none else 'N/A' }}</strong></span>
-                <span>SSIM: <strong>{{ '%.4f' | format(first.ssim) if first.ssim is not none else 'N/A' }}</strong></span>
+        <div class="result-highlight-card metrics-card">
+            <div class="highlight-header">
+                <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" stroke="currentColor" stroke-width="2"/><polyline points="3.27 6.96 12 12.01 20.73 6.96" stroke="currentColor" stroke-width="2"/><line x1="12" y1="22.08" x2="12" y2="12" stroke="currentColor" stroke-width="2"/></svg>
+                <strong>Image Quality Metrics (Carrier 1)</strong>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-chip">
+                    <span class="metric-chip-label">MSE</span>
+                    <span class="metric-chip-val">{{ '%.4f' | format(first.mse) if first.mse is not none else 'N/A' }}</span>
+                </div>
+                <div class="metric-chip">
+                    <span class="metric-chip-label">PSNR</span>
+                    <span class="metric-chip-val">{{ '%.2f dB' | format(first.psnr) if first.psnr is not none else 'N/A' }}</span>
+                </div>
+                <div class="metric-chip">
+                    <span class="metric-chip-label">SSIM</span>
+                    <span class="metric-chip-val">{{ '%.4f' | format(first.ssim) if first.ssim is not none else 'N/A' }}</span>
+                </div>
                 {% if first.ae_reconstruction_loss is not none %}
-                <span>AE Loss: <strong>{{ '%.6f' | format(first.ae_reconstruction_loss) }}</strong></span>
+                <div class="metric-chip">
+                    <span class="metric-chip-label">AE Loss</span>
+                    <span class="metric-chip-val">{{ '%.6f' | format(first.ae_reconstruction_loss) }}</span>
+                </div>
                 {% endif %}
             </div>
         </div>

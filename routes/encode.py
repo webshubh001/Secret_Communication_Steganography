@@ -370,7 +370,7 @@ def encode():
 
     # 14. Bundle stego images into ZIP and serve
     zip_buffer = io.BytesIO()
-    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
+    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_STORED) as zf:
         for i, sp in enumerate(stego_paths):
             zf.write(sp, f'stego_image_{i + 1}.png')
     zip_buffer.seek(0)

@@ -67,3 +67,9 @@ htmlcov/
 
 # ── Internal plan (not for repo) ─────────────────────────────────
 implementation_plan.md
+
+# ── Temporary / Test Files ───────────────────────────────────────
+.~lock.*#
+~$*
+test_*.png
+
